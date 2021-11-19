@@ -98,9 +98,9 @@ end
 to reproduce ;; each turtle reproduces according to its fitness and then dies
   ;; If cell is cancerous, then it requires GF in order to reproduce
   if color = red [
-    ifelse gf >= ideal-temp
-    [set gf gf - ideal-temp]
-    [stop]  ;; cell not reproduce without sufficient GF
+    ifelse gf >= gf-reproduction-threshold
+    [set gf gf - gf-reproduction-threshold]
+    [stop]  ;; cell cannot reproduce without sufficient GF
   ]
   hatch fertility [
     ;; Randomly mutate.
@@ -354,7 +354,7 @@ min-ideal-temp
 min-ideal-temp
 0
 200
-0.0
+200.0
 1
 1
 NIL
@@ -384,7 +384,7 @@ max-output-heat
 max-output-heat
 0
 100
-8.0
+100.0
 1
 1
 NIL
@@ -399,7 +399,7 @@ min-output-heat
 min-output-heat
 0
 100
-0.0
+100.0
 1
 1
 NIL
@@ -600,6 +600,21 @@ mutation-rate
 1
 0.1
 0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+306
+574
+527
+607
+gf-reproduction-threshold
+gf-reproduction-threshold
+0
+200
+0.0
+1
 1
 NIL
 HORIZONTAL
