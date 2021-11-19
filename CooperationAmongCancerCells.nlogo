@@ -11,7 +11,9 @@ turtles-own
 
 patches-own
 [
-  temp             ;; short for "temperature"
+  temp
+  gf             ;; short for growth factor
+  aa             ;; short for anti-apoptosis
 ]
 
 to setup
@@ -26,7 +28,8 @@ to setup
       set output-heat min-output-heat + random (max-output-heat - min-output-heat)
       set unhappiness abs (ideal-temp - temp)
       set fertility 1
-      color-by-ideal-temp
+      set color blue
+      ;; color-by-ideal-temp
       face one-of neighbors
       set size 2  ;; easier to see
     ]
@@ -60,12 +63,11 @@ to go
   ;; "ask turtles" automatically shuffles the order of execution
   ;; each time.
   ask turtles [
-
-    produce_gf
+    if color = red [produce_gf]
     reproduce
   ]
   kill-turtles
-  recolor-turtles
+  ;; recolor-turtles
   recolor-patches
   tick
 end
@@ -88,15 +90,29 @@ to recolor-patches
   ask patches [ set pcolor scale-color red temp 0 150 ]
 end
 
+
+to find-empty-patch-or-die
+  let target one-of neighbors with [not any? turtles-here]
+  ifelse target != nobody [ move-to target ][die]  ;; TODO: can introduce concept of competition. i.e. if no empty space, offspring have to fight to see which survive
+end
+
 to reproduce ;; each turtle reproduces according to its fitness and then dies
-  if temp >= ideal-temp  [
-    set temp - ideal-temp
-    hatch fertility [
-      set fertility 2
-      ;; move offspring to an adjacent empty patch. If no empty patches exist, offspring dies.
-      let target one-of neighbors with [not any? turtles-here]
-      ifelse target != nobody [ move-to target ][die]  ;; TODO: can introduce concept of competition. i.e. if no empty space, offspring have to fight to see which survive
+  ;; If cell is cancerous, then it requires GF in order to reproduce
+  if color = red [
+    ifelse temp >= ideal-temp
+    [set temp temp - ideal-temp]
+    [stop]  ;; cell not reproduce without sufficient GF
+  ]
+  hatch fertility [
+    ;; Randomly mutate.
+    if random 100 < 100 * mutation-rate [
+      set color red
     ]
+
+    ifelse color = red [set fertility 1] [set fertility 1]  ;; TODO: make cancer cells have higher fertility than normal cells
+
+    ;; move offspring to an adjacent empty patch. If no empty patches exist, offspring dies.
+    find-empty-patch-or-die
   ]
 end
 
@@ -104,6 +120,7 @@ end
 ;; note that reds and blues have equal probability of dying
 to kill-turtles
   let num-turtles count turtles
+  ;; TODO: maybe replace carrying capacity with death rate
   if num-turtles > carrying-capacity [
     let num-to-die num-turtles - carrying-capacity
     ask n-of num-to-die turtles [ die ]
@@ -226,7 +243,7 @@ bug-count
 bug-count
 1
 500
-100.0
+101.0
 1
 1
 bugs
@@ -338,7 +355,7 @@ min-ideal-temp
 min-ideal-temp
 0
 200
-10.0
+0.0
 1
 1
 NIL
@@ -353,7 +370,7 @@ max-ideal-temp
 max-ideal-temp
 0
 200
-40.0
+11.0
 1
 1
 NIL
@@ -368,7 +385,7 @@ max-output-heat
 max-output-heat
 0
 100
-12.0
+8.0
 1
 1
 NIL
@@ -383,7 +400,7 @@ min-output-heat
 min-output-heat
 0
 100
-5.0
+0.0
 1
 1
 NIL
@@ -567,8 +584,23 @@ carrying-capacity
 carrying-capacity
 100
 1000
-500.0
+850.0
 50
+1
+NIL
+HORIZONTAL
+
+SLIDER
+43
+623
+215
+656
+mutation-rate
+mutation-rate
+0
+1
+0.1
+0.01
 1
 NIL
 HORIZONTAL
