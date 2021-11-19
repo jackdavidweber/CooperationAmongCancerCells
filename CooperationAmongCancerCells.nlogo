@@ -11,7 +11,6 @@ turtles-own
 
 patches-own
 [
-  temp
   gf             ;; short for growth factor
   aa             ;; short for anti-apoptosis
 ]
@@ -26,7 +25,7 @@ to setup
     sprout 1 [
       set ideal-temp  min-ideal-temp  + random (max-ideal-temp  - min-ideal-temp)
       set output-heat min-output-heat + random (max-output-heat - min-output-heat)
-      set unhappiness abs (ideal-temp - temp)
+      set unhappiness abs (ideal-temp - gf)
       set fertility 1
       set color blue
       ;; color-by-ideal-temp
@@ -53,12 +52,12 @@ end
 to go
   if not any? turtles [ stop ]
   ;; diffuse heat through world
-  diffuse temp diffusion-rate
+  diffuse gf diffusion-rate
   ;; The world retains a percentage of its heat each cycle.
   ;; (The Swarm and Repast versions have 1.0 meaning no
   ;; evaporation and 0.0 meaning complete evaporation;
   ;; we reverse the scale to better match the name.)
-  ask patches [ set temp temp * (1 - evaporation-rate) ]
+  ask patches [ set gf gf * (1 - evaporation-rate) ]
   ;; agentsets in NetLogo are always in random order, so
   ;; "ask turtles" automatically shuffles the order of execution
   ;; each time.
@@ -73,7 +72,7 @@ to go
 end
 
 to produce_gf
-  set temp temp + output-heat  ; instead of step, just output heat
+  set gf gf + output-heat  ; instead of step, just output heat
 end
 
 to recolor-turtles
@@ -87,7 +86,7 @@ end
 to recolor-patches
   ;; hotter patches will be red verging on white;
   ;; cooler patches will be black
-  ask patches [ set pcolor scale-color red temp 0 150 ]
+  ask patches [ set pcolor scale-color red gf 0 150 ]
 end
 
 
@@ -99,8 +98,8 @@ end
 to reproduce ;; each turtle reproduces according to its fitness and then dies
   ;; If cell is cancerous, then it requires GF in order to reproduce
   if color = red [
-    ifelse temp >= ideal-temp
-    [set temp temp - ideal-temp]
+    ifelse gf >= ideal-temp
+    [set gf gf - ideal-temp]
     [stop]  ;; cell not reproduce without sufficient GF
   ]
   hatch fertility [
@@ -130,26 +129,26 @@ end
 to step  ;; turtle procedure
   ;; my unhappiness is the magnitude or absolute value of the difference
   ;; between by ideal temperature and the temperature of this patch
-  set unhappiness abs (ideal-temp - temp)
+  set unhappiness abs (ideal-temp - gf)
   ;; if unhappy and not at the hottest neighbor,
   ;; then move to an open neighbor
   if unhappiness > 0
     [ ifelse random-float 100 < random-move-chance
         [ bug-move one-of neighbors ]
         [ bug-move best-patch ] ]
-  set temp temp + output-heat
+  set gf gf + output-heat
 end
 
 ;; find the hottest or coolest location next to me; also
 ;; take my current patch into consideration
 to-report best-patch  ;; turtle procedure
-  ifelse temp < ideal-temp
-    [ let winner max-one-of neighbors [temp]
-      ifelse [temp] of winner > temp
+  ifelse gf < ideal-temp
+    [ let winner max-one-of neighbors [gf]
+      ifelse [gf] of winner > gf
         [ report winner ]
         [ report patch-here ] ]
-    [ let winner min-one-of neighbors [temp]
-      ifelse [temp] of winner < temp
+    [ let winner min-one-of neighbors [gf]
+      ifelse [gf] of winner < gf
         [ report winner ]
         [ report patch-here ] ]
 end
@@ -195,12 +194,12 @@ end
 
 ;; remove all heat from the world
 to deep-freeze
-  ask patches [ set temp 0 ]
+  ask patches [ set gf 0 ]
 end
 
 ;; add max-output-heat to all locations in the world, heating it evenly
 to heat-up
-  ask patches [ set temp temp + max-output-heat ]
+  ask patches [ set gf gf + max-output-heat ]
 end
 
 
