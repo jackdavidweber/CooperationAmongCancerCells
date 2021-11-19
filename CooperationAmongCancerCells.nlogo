@@ -60,13 +60,18 @@ to go
   ;; "ask turtles" automatically shuffles the order of execution
   ;; each time.
   ask turtles [
-    set temp temp + output-heat  ; instead of step, just output heat
+
+    produce_gf
     reproduce
   ]
   kill-turtles
   recolor-turtles
   recolor-patches
   tick
+end
+
+to produce_gf
+  set temp temp + output-heat  ; instead of step, just output heat
 end
 
 to recolor-turtles
@@ -84,11 +89,14 @@ to recolor-patches
 end
 
 to reproduce ;; each turtle reproduces according to its fitness and then dies
-  hatch fertility [
-    set fertility 2
-    ;; move offspring to an adjacent empty patch. If no empty patches exist, offspring dies.
-    let target one-of neighbors with [not any? turtles-here]
-    ifelse target != nobody [ move-to target ][die]  ;; TODO: can introduce concept of competition. i.e. if no empty space, offspring have to fight to see which survive
+  if temp >= ideal-temp  [
+    set temp - ideal-temp
+    hatch fertility [
+      set fertility 2
+      ;; move offspring to an adjacent empty patch. If no empty patches exist, offspring dies.
+      let target one-of neighbors with [not any? turtles-here]
+      ifelse target != nobody [ move-to target ][die]  ;; TODO: can introduce concept of competition. i.e. if no empty space, offspring have to fight to see which survive
+    ]
   ]
 end
 
@@ -360,7 +368,7 @@ max-output-heat
 max-output-heat
 0
 100
-25.0
+12.0
 1
 1
 NIL
@@ -559,7 +567,7 @@ carrying-capacity
 carrying-capacity
 100
 1000
-400.0
+500.0
 50
 1
 NIL
