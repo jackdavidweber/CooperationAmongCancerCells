@@ -242,7 +242,7 @@ bug-count
 bug-count
 1
 500
-101.0
+100.0
 1
 1
 bugs
@@ -291,7 +291,7 @@ evaporation-rate
 evaporation-rate
 0
 1
-0.01
+0.0
 0.01
 1
 NIL
@@ -306,7 +306,7 @@ diffusion-rate
 diffusion-rate
 0
 1
-0.9
+1.0
 0.1
 1
 NIL
@@ -384,7 +384,7 @@ max-output-heat
 max-output-heat
 0
 100
-100.0
+8.0
 1
 1
 NIL
@@ -399,7 +399,7 @@ min-output-heat
 min-output-heat
 0
 100
-100.0
+0.0
 1
 1
 NIL
@@ -613,7 +613,7 @@ gf-reproduction-threshold
 gf-reproduction-threshold
 0
 200
-0.0
+4.0
 1
 1
 NIL
