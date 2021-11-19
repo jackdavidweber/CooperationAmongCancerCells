@@ -63,6 +63,7 @@ to go
     set temp temp + output-heat  ; instead of step, just output heat
     reproduce
   ]
+  kill-turtles
   recolor-turtles
   recolor-patches
   tick
@@ -85,8 +86,19 @@ end
 to reproduce ;; each turtle reproduces according to its fitness and then dies
   hatch fertility [
     set fertility 2
+    ;; move offspring to an adjacent empty patch. If no empty patches exist, offspring dies.
     let target one-of neighbors with [not any? turtles-here]
-    ifelse target != nobody [ move-to target ][die]
+    ifelse target != nobody [ move-to target ][die]  ;; TODO: can introduce concept of competition. i.e. if no empty space, offspring have to fight to see which survive
+  ]
+end
+
+;; kill turtles in excess of carrying capacity
+;; note that reds and blues have equal probability of dying
+to kill-turtles
+  let num-turtles count turtles
+  if num-turtles > carrying-capacity [
+    let num-to-die num-turtles - carrying-capacity
+    ask n-of num-to-die turtles [ die ]
   ]
 end
 
@@ -537,6 +549,21 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+20
+547
+192
+580
+carrying-capacity
+carrying-capacity
+100
+1000
+400.0
+50
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
