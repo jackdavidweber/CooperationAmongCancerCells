@@ -5,6 +5,7 @@ turtles-own
   ideal-temp       ;; The temperature I want to be at
   output-heat      ;; How much heat I emit per time step
   unhappiness      ;; The magnitude of the difference between my ideal
+  fertility
                    ;;   temperature and the actual current temperature here
 ]
 
@@ -24,6 +25,7 @@ to setup
       set ideal-temp  min-ideal-temp  + random (max-ideal-temp  - min-ideal-temp)
       set output-heat min-output-heat + random (max-output-heat - min-output-heat)
       set unhappiness abs (ideal-temp - temp)
+      set fertility 1
       color-by-ideal-temp
       face one-of neighbors
       set size 2  ;; easier to see
@@ -57,7 +59,10 @@ to go
   ;; agentsets in NetLogo are always in random order, so
   ;; "ask turtles" automatically shuffles the order of execution
   ;; each time.
-  ask turtles [ step ]
+  ask turtles [
+    set temp temp + output-heat  ; instead of step, just output heat
+    reproduce
+  ]
   recolor-turtles
   recolor-patches
   tick
@@ -75,6 +80,14 @@ to recolor-patches
   ;; hotter patches will be red verging on white;
   ;; cooler patches will be black
   ask patches [ set pcolor scale-color red temp 0 150 ]
+end
+
+to reproduce ;; each turtle reproduces according to its fitness and then dies
+  hatch fertility [
+    set fertility 2
+    let target one-of neighbors with [not any? turtles-here]
+    ifelse target != nobody [ move-to target ][die]
+  ]
 end
 
 to step  ;; turtle procedure
