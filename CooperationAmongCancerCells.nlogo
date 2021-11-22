@@ -2,7 +2,7 @@ globals [ color-by-unhappiness? ]
 
 turtles-own
 [
-  output-heat      ;; How much heat I emit per time step
+  output-gf      ;; How much gf I emit per time step
   unhappiness      ;; The magnitude of the difference between my ideal
   fertility
                    ;;   temperature and the actual current temperature here
@@ -22,7 +22,7 @@ to setup
   ;; wind up with more than one bug on a patch
   ask n-of bug-count patches [
     sprout 1 [
-      set output-heat min-output-heat + random (max-output-heat - min-output-heat)
+      set output-gf min-output-gf + random (max-output-gf - min-output-gf)
       set unhappiness abs (gf-reproduction-threshold - gf)
       set fertility 1
       set color blue
@@ -41,9 +41,9 @@ end
 
 to go
   if not any? turtles [ stop ]
-  ;; diffuse heat through world
+  ;; diffuse gf through world
   diffuse gf diffusion-rate
-  ;; The world retains a percentage of its heat each cycle.
+  ;; The world retains a percentage of its gf each cycle.
   ;; (The Swarm and Repast versions have 1.0 meaning no
   ;; evaporation and 0.0 meaning complete evaporation;
   ;; we reverse the scale to better match the name.)
@@ -62,7 +62,7 @@ to go
 end
 
 to produce_gf
-  set gf gf + output-heat  ; instead of step, just output heat
+  set gf gf + output-gf  ; instead of step, just output gf
 end
 
 to recolor-turtles
@@ -126,7 +126,7 @@ to step  ;; turtle procedure
     [ ifelse random-float 100 < random-move-chance
         [ bug-move one-of neighbors ]
         [ bug-move best-patch ] ]
-  set gf gf + output-heat
+  set gf gf + output-gf
 end
 
 ;; find the hottest or coolest location next to me; also
@@ -182,14 +182,14 @@ end
 ;;; the following procedures support the two extra buttons
 ;;; in the interface
 
-;; remove all heat from the world
-to deep-freeze
+;; remove all gf from the world
+to gf-nowhere
   ask patches [ set gf 0 ]
 end
 
-;; add max-output-heat to all locations in the world, heating it evenly
-to heat-up
-  ask patches [ set gf gf + max-output-heat ]
+;; add max-output-gf to all locations in the world
+to gf-everywhere
+  ask patches [ set gf gf + max-output-gf ]
 end
 
 
@@ -232,7 +232,7 @@ bug-count
 bug-count
 1
 500
-100.0
+101.0
 1
 1
 bugs
@@ -317,31 +317,13 @@ random-move-chance
 %
 HORIZONTAL
 
-PLOT
-14
-354
-358
-513
-Avg. Bug Unhappiness
-time
-unhappiness
-0.0
-100.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plot mean [unhappiness] of turtles"
-
 SLIDER
 189
 102
 362
 135
-max-output-heat
-max-output-heat
+max-output-gf
+max-output-gf
 0
 100
 8.0
@@ -355,23 +337,23 @@ SLIDER
 69
 362
 102
-min-output-heat
-min-output-heat
+min-output-gf
+min-output-gf
 0
 100
-0.0
+2.0
 1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-179
-177
-271
-210
+250
+151
+354
+184
 NIL
-deep-freeze
+gf-nowhere
 NIL
 1
 T
@@ -383,12 +365,12 @@ NIL
 1
 
 BUTTON
-274
-177
-362
-210
+250
+184
+371
+217
 NIL
-heat-up
+gf-everywhere
 NIL
 1
 T
@@ -578,6 +560,24 @@ gf-reproduction-threshold
 1
 NIL
 HORIZONTAL
+
+PLOT
+14
+354
+358
+513
+Avg. Bug Unhappiness
+time
+unhappiness
+0.0
+100.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot mean [unhappiness] of turtles"
 
 @#$#@#$#@
 ## WHAT IS IT?
