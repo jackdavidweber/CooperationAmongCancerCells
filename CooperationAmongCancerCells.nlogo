@@ -589,6 +589,7 @@ false
 PENS
 "default" 1.0 0 -2674135 true "" "plot count turtles with [color = red]"
 "pen-1" 1.0 0 -13345367 true "" "plot count turtles with [color = blue]"
+"pen-2" 1.0 0 -2064490 true "" "plot count turtles with [color = pink]"
 
 SLIDER
 626
