@@ -20,7 +20,7 @@ to setup
 
   ;; creating the bugs the following way ensures that we won't
   ;; wind up with more than one bug on a patch
-  ask n-of bug-count patches [
+  ask n-of cell-count patches [
     sprout 1 [
       set output-gf min-output-gf + random (max-output-gf - min-output-gf)
       set unhappiness abs (gf-reproduction-threshold - gf)
@@ -87,18 +87,22 @@ end
 
 to reproduce ;; each turtle reproduces according to its fitness and then dies
   ;; If cell is cancerous, then it requires GF in order to reproduce
-  if color = red [
+  if color = red or color = pink[
     ifelse gf >= gf-reproduction-threshold
     [set gf gf - gf-reproduction-threshold]
     [stop]  ;; cell cannot reproduce without sufficient GF
   ]
   hatch fertility [
-    ;; Randomly mutate.
-    if random 100 < 100 * mutation-rate [
-      set color red
+    ;; Randomly mutate healthy cells only.
+    ;; TODO: figure out whether cancerous cells can mutate and stop double counting mutation rate.
+    if color = blue [
+      if random 100 < 100 * mutation-rate [
+        ;; Equally likely to mutate to be red or pink
+        ifelse random 100 < 50 [set color red] [set color pink]
+      ]
     ]
 
-    ifelse color = red [set fertility 1] [set fertility 1]  ;; TODO: make cancer cells have higher fertility than normal cells
+    set fertility 1  ;; TODO: make cancer cells have higher fertility than normal cells
 
     ;; move offspring to an adjacent empty patch. If no empty patches exist, offspring dies.
     find-empty-patch-or-die
@@ -110,6 +114,7 @@ end
 to kill-turtles
   ask turtles [
     if color = red and random 100 < 100 * cancer-death-rate [die]
+    if color = pink and random 100 < 100 * aa-death-rate [die]
     if color = blue and random 100 < 100 * normal-death-rate [die]
   ]
 
@@ -233,8 +238,8 @@ SLIDER
 30
 276
 63
-bug-count
-bug-count
+cell-count
+cell-count
 1
 500
 101.0
@@ -286,7 +291,7 @@ evaporation-rate
 evaporation-rate
 0
 1
-0.0
+0.02
 0.01
 1
 NIL
@@ -391,7 +396,7 @@ TEXTBOX
 10
 160
 28
-Initial settings for bugs
+Initial settings for cells
 11
 0.0
 0
@@ -545,7 +550,7 @@ mutation-rate
 mutation-rate
 0
 1
-0.1
+0.14
 0.01
 1
 NIL
@@ -594,7 +599,7 @@ cancer-death-rate
 cancer-death-rate
 0
 1
-0.89
+0.57
 0.01
 1
 NIL
@@ -609,7 +614,7 @@ normal-death-rate
 normal-death-rate
 0
 1
-0.39
+0.47
 0.01
 1
 NIL
@@ -624,7 +629,7 @@ aa-death-rate
 aa-death-rate
 0
 1
-0.2
+0.73
 0.01
 1
 NIL
