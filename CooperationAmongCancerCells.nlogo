@@ -2,7 +2,6 @@ globals [ color-by-unhappiness? ]
 
 turtles-own
 [
-  ideal-temp       ;; The temperature I want to be at
   output-heat      ;; How much heat I emit per time step
   unhappiness      ;; The magnitude of the difference between my ideal
   fertility
@@ -23,9 +22,8 @@ to setup
   ;; wind up with more than one bug on a patch
   ask n-of bug-count patches [
     sprout 1 [
-      set ideal-temp  min-ideal-temp  + random (max-ideal-temp  - min-ideal-temp)
       set output-heat min-output-heat + random (max-output-heat - min-output-heat)
-      set unhappiness abs (ideal-temp - gf)
+      set unhappiness abs (gf-reproduction-threshold - gf)
       set fertility 1
       set color blue
       ;; color-by-ideal-temp
@@ -35,14 +33,6 @@ to setup
   ]
   ;; plot the initial state of the system
   reset-ticks
-end
-
-to color-by-ideal-temp
-  ;; when scaling the color of turtles, adjust the value
-  ;; range by this amount to avoid turtles being too dark or too light.
-  let range-adjustment ( max-ideal-temp - min-ideal-temp ) / 2
-  set color scale-color lime ideal-temp ( min-ideal-temp - range-adjustment )
-                                        ( max-ideal-temp + range-adjustment )
 end
 
 to color-by-unhappiness [ max-unhappiness ]
@@ -129,7 +119,7 @@ end
 to step  ;; turtle procedure
   ;; my unhappiness is the magnitude or absolute value of the difference
   ;; between by ideal temperature and the temperature of this patch
-  set unhappiness abs (ideal-temp - gf)
+  set unhappiness abs (gf-reproduction-threshold - gf)
   ;; if unhappy and not at the hottest neighbor,
   ;; then move to an open neighbor
   if unhappiness > 0
@@ -142,7 +132,7 @@ end
 ;; find the hottest or coolest location next to me; also
 ;; take my current patch into consideration
 to-report best-patch  ;; turtle procedure
-  ifelse gf < ideal-temp
+  ifelse gf < gf-reproduction-threshold
     [ let winner max-one-of neighbors [gf]
       ifelse [gf] of winner > gf
         [ report winner ]
@@ -344,36 +334,6 @@ false
 "" ""
 PENS
 "default" 1.0 0 -16777216 true "" "plot mean [unhappiness] of turtles"
-
-SLIDER
-14
-69
-186
-102
-min-ideal-temp
-min-ideal-temp
-0
-200
-200.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-14
-102
-186
-135
-max-ideal-temp
-max-ideal-temp
-0
-200
-11.0
-1
-1
-NIL
-HORIZONTAL
 
 SLIDER
 189
