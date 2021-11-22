@@ -25,7 +25,7 @@ to setup
       set output-gf min-output-gf + random (max-output-gf - min-output-gf)
       set unhappiness abs (gf-reproduction-threshold - gf)
       set fertility 1
-      set color blue
+      set color green
       ;; color-by-ideal-temp
       face one-of neighbors
       set size 2  ;; easier to see
@@ -36,7 +36,7 @@ to setup
 end
 
 to color-by-unhappiness [ max-unhappiness ]
-  set color scale-color blue unhappiness  max-unhappiness 0
+  set color scale-color green unhappiness  max-unhappiness 0
 end
 
 to go
@@ -87,7 +87,7 @@ end
 
 to reproduce ;; each turtle reproduces according to its fitness and then dies
   ;; If cell is cancerous, then it requires GF in order to reproduce
-  if color = red or color = pink[
+  if color = red or color = blue[
     ifelse gf >= gf-reproduction-threshold
     [set gf gf - gf-reproduction-threshold]
     [stop]  ;; cell cannot reproduce without sufficient GF
@@ -95,10 +95,10 @@ to reproduce ;; each turtle reproduces according to its fitness and then dies
   hatch fertility [
     ;; Randomly mutate healthy cells only.
     ;; TODO: figure out whether cancerous cells can mutate and stop double counting mutation rate.
-    if color = blue [
+    if color = green [
       if random 100 < 100 * mutation-rate [
-        ;; Equally likely to mutate to be red or pink
-        ifelse random 100 < 50 [set color red] [set color pink]
+        ;; Equally likely to mutate to be red or blue
+        ifelse random 100 < 50 [set color red] [set color blue]
       ]
     ]
 
@@ -110,12 +110,12 @@ to reproduce ;; each turtle reproduces according to its fitness and then dies
 end
 
 ;; kill turtles in excess of carrying capacity
-;; note that reds and blues have equal probability of dying
+;; note that reds and greens have equal probability of dying
 to kill-turtles
   ask turtles [
     if color = red and random 100 < 100 * cancer-death-rate [die]
-    if color = pink and random 100 < 100 * aa-death-rate [die]
-    if color = blue and random 100 < 100 * normal-death-rate [die]
+    if color = blue and random 100 < 100 * aa-death-rate [die]
+    if color = green and random 100 < 100 * normal-death-rate [die]
   ]
 
   ;; Kill remaining turtles based on carrying-capacity
@@ -124,19 +124,6 @@ to kill-turtles
     let num-to-die num-turtles - carrying-capacity
     ask n-of num-to-die turtles [ die ]
   ]
-end
-
-to step  ;; turtle procedure
-  ;; my unhappiness is the magnitude or absolute value of the difference
-  ;; between by ideal temperature and the temperature of this patch
-  set unhappiness abs (gf-reproduction-threshold - gf)
-  ;; if unhappy and not at the hottest neighbor,
-  ;; then move to an open neighbor
-  if unhappiness > 0
-    [ ifelse random-float 100 < random-move-chance
-        [ bug-move one-of neighbors ]
-        [ bug-move best-patch ] ]
-  set gf gf + output-gf
 end
 
 ;; find the hottest or coolest location next to me; also
@@ -242,10 +229,10 @@ cell-count
 cell-count
 1
 500
-101.0
+100.0
 1
 1
-bugs
+cells
 HORIZONTAL
 
 BUTTON
@@ -291,7 +278,7 @@ evaporation-rate
 evaporation-rate
 0
 1
-0.02
+0.04
 0.01
 1
 NIL
@@ -306,25 +293,10 @@ diffusion-rate
 diffusion-rate
 0
 1
-1.0
+0.0
 0.1
 1
 NIL
-HORIZONTAL
-
-SLIDER
-164
-305
-357
-338
-random-move-chance
-random-move-chance
-0
-100
-100.0
-1.0
-1
-%
 HORIZONTAL
 
 SLIDER
@@ -336,7 +308,7 @@ max-output-gf
 max-output-gf
 0
 100
-8.0
+10.0
 1
 1
 NIL
@@ -351,7 +323,7 @@ min-output-gf
 min-output-gf
 0
 100
-2.0
+8.0
 1
 1
 NIL
@@ -431,106 +403,11 @@ TEXTBOX
 0.0
 0
 
-BUTTON
-462
-445
-568
-478
-ideal-temp
-set color-by-unhappiness? false\nask turtles [ color-by-ideal-temp ]
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-573
-445
-689
-478
-happiness
-set color-by-unhappiness? true
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-TEXTBOX
-376
-453
-459
-483
-Color bug by:
-11
-0.0
-0
-
-BUTTON
-462
-481
-569
-514
-watch saddest
-watch max-one-of turtles [ unhappiness ]
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-0
-
-BUTTON
-573
-481
-691
-514
-watch happiest
-watch min-one-of turtles [ unhappiness ]
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-0
-
-BUTTON
-694
-481
-831
-514
-NIL
-reset-perspective
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
 SLIDER
-20
-547
-192
-580
+625
+434
+797
+467
 carrying-capacity
 carrying-capacity
 100
@@ -542,30 +419,30 @@ NIL
 HORIZONTAL
 
 SLIDER
-43
-623
-215
-656
+389
+440
+561
+473
 mutation-rate
 mutation-rate
 0
 1
-0.14
+0.3
 0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-306
-574
-527
-607
+388
+486
+609
+519
 gf-reproduction-threshold
 gf-reproduction-threshold
 0
 200
-0.0
+15.0
 1
 1
 NIL
@@ -589,33 +466,33 @@ false
 PENS
 "default" 1.0 0 -2674135 true "" "plot count turtles with [color = red]"
 "pen-1" 1.0 0 -13345367 true "" "plot count turtles with [color = blue]"
-"pen-2" 1.0 0 -2064490 true "" "plot count turtles with [color = pink]"
+"pen-2" 1.0 0 -10899396 true "" "plot count turtles with [color = green]"
 
 SLIDER
 626
-555
+503
 798
-588
+536
 cancer-death-rate
 cancer-death-rate
 0
 1
-0.57
+0.15
 0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-626
-589
-798
-622
+624
+468
+796
+501
 normal-death-rate
 normal-death-rate
 0
 1
-0.47
+0.1
 0.01
 1
 NIL
@@ -623,14 +500,14 @@ HORIZONTAL
 
 SLIDER
 625
-624
+540
 797
-657
+573
 aa-death-rate
 aa-death-rate
 0
 1
-0.73
+0.05
 0.01
 1
 NIL
@@ -639,73 +516,12 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-Heatbugs is an abstract model of the behavior of biologically-inspired agents that attempt to maintain an optimum temperature around themselves.  It demonstrates how simple rules defining the behavior of agents can produce several different kinds of emergent behavior.
-
-Heatbugs has been used as a demonstration model for many agent-based modeling toolkits. We provide a NetLogo version to assist users in learning and comparing different toolkits.  It demonstrates coding techniques in NetLogo and may be useful as a starting point for building other models.
-
-While this NetLogo model attempts to match the Repast and Swarm versions (see "Credits" below), we haven't done a rigorous comparative analysis of the different versions, so it is possible that there are small inadvertent differences in the underlying rules and behavior.
 
 ## HOW IT WORKS
 
-The bugs move around on a grid of square "patches".  A bug may not move to a patch that already has another bug on it.
-
-Each bug radiates a small amount of heat.  Heat gradually diffuses through the world; some heat is lost to cooling.
-
-Each bug has an "ideal" temperature it wants to be.  The bigger the difference between the temperature of the patch where the bug is and the bug's ideal temperature, the more "unhappy" the bug is.  When a bug is unhappy, it moves.  If it is too hot, it moves to the coolest adjacent empty patch.  Conversely, if a bug is too cold, it moves to the warmest adjacent empty patch.  (Note that these bugs aren't smart enough to always move to the best available patch.)
 
 ## HOW TO USE IT
 
-After choosing the number of bugs to create, and setting the model variables, press the GO button to set the heatbugs into motion.
-
-BUG-COUNT: The number of bugs that will inhabit the model
-
-EVAPORATION-RATE: The percentage of the world's heat that evaporates each cycle.  A lower number means a world which cools slowly, a higher number is a world which cools quickly.
-
-DIFFUSION-RATE: How much heat a patch (a spot in the world) diffuses to its neighbors.  A higher number means that heat diffuses through the world quickly.  A lower number means that patches retain more of their heat.
-
-MIN/MAX-IDEAL-TEMP: The minimum and maximum ideal temperatures for heatbugs.  Each bug is given an ideal temperature between the min and max ideal temperature.
-
-MIN/MAX-OUTPUT-HEAT: The minimum and maximum heat that heatbugs generate each cycle.  Each bug is given a output-heat value between the min and max output heat.
-
-RANDOM-MOVE-CHANCE: The chance that a bug will make a random move even if it would prefer to stay where it is (because no more ideal patch is available).
-
-DEEP-FREEZE: This button removes all heat from the world.
-
-HEAT-UP: This button adds MAX-OUTPUT-HEAT to every patch in the world.
-
-Beneath the view are two "Color By:" buttons.  The IDEAL-TEMP button colors the bugs according to their IDEAL-TEMP value.  Bugs with higher IDEAL-TEMP values will be brighter.  The HAPPINESS button does the same, but is based upon the HAPPINESS value of each agent, with happier bugs being brighter.
-
-The WATCH-HAPPIEST and WATCH-SADDEST buttons will highlight the happiest or saddest bug at the time the button is pressed.
-
-## THINGS TO NOTICE
-
-Depending on their ideal temperatures, some bugs will tend to clump together, while others will tend to avoid all other bugs, and others still flutter around the edges of clumps.  All of these behaviors are affected as well by the evaporation rate.
-
-The diffusion rate affects the cohesiveness of clumps.  If diffusion-rate is slow, many tiny clumps form.  Why?
-
-Most interesting behaviors occur when the number of bugs, how much heat they generate, and how quickly the world cools are balanced such that excessive heat does not build up.
-
-## THINGS TO TRY
-
-Vary DIFFUSION-RATE.
-
-Vary EVAPORATION-RATE in relation to the output-heat range of the bugs.
-
-Use the HEAT-UP button to scramble clumped heatbugs and watch as they re-assemble into new clumps.
-
-## EXTENDING THE MODEL
-
-Randomize the amount of heat bugs generate each cycle.
-
-Allow users to introduce heat into the system with the mouse.
-
-## NETLOGO FEATURES
-
-`n-of` and `sprout` together let us initially place each bug on its own patch with a minimum of code.
-
-Notice how the code does not make any use of X and Y coordinates.  The `neighbors` and `move-to` primitives take care of sensing and motion on a toroidal grid without the need for any explicit coordinate math.
-
-The `diffuse` command is used to diffuse the heat around the patch grid.
 
 ## RELATED MODELS
 
