@@ -108,8 +108,13 @@ end
 ;; kill turtles in excess of carrying capacity
 ;; note that reds and blues have equal probability of dying
 to kill-turtles
+  ask turtles [
+    if color = red and random 100 < 100 * cancer-death-rate [die]
+    if color = blue and random 100 < 100 * normal-death-rate [die]
+  ]
+
+  ;; Kill remaining turtles based on carrying-capacity
   let num-turtles count turtles
-  ;; TODO: maybe replace carrying capacity with death rate
   if num-turtles > carrying-capacity [
     let num-to-die num-turtles - carrying-capacity
     ask n-of num-to-die turtles [ die ]
@@ -555,20 +560,20 @@ gf-reproduction-threshold
 gf-reproduction-threshold
 0
 200
-4.0
+0.0
 1
 1
 NIL
 HORIZONTAL
 
 PLOT
-28
-371
-228
-521
+11
+348
+370
+537
 Cell Types
 Time
-Count of Cell Types
+Cell Types
 0.0
 10.0
 0.0
@@ -579,6 +584,51 @@ false
 PENS
 "default" 1.0 0 -2674135 true "" "plot count turtles with [color = red]"
 "pen-1" 1.0 0 -13345367 true "" "plot count turtles with [color = blue]"
+
+SLIDER
+626
+555
+798
+588
+cancer-death-rate
+cancer-death-rate
+0
+1
+0.89
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+626
+589
+798
+622
+normal-death-rate
+normal-death-rate
+0
+1
+0.39
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+625
+624
+797
+657
+aa-death-rate
+aa-death-rate
+0
+1
+0.2
+0.01
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
