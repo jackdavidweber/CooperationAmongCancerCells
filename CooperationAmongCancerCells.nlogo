@@ -562,22 +562,23 @@ NIL
 HORIZONTAL
 
 PLOT
-14
-354
-358
-513
-Avg. Bug Unhappiness
-time
-unhappiness
+28
+371
+228
+521
+Cell Types
+Time
+Count of Cell Types
 0.0
-100.0
+10.0
 0.0
 10.0
 true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot mean [unhappiness] of turtles"
+"default" 1.0 0 -2674135 true "" "plot count turtles with [color = red]"
+"pen-1" 1.0 0 -13345367 true "" "plot count turtles with [color = blue]"
 
 @#$#@#$#@
 ## WHAT IS IT?
