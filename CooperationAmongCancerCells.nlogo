@@ -62,6 +62,7 @@ to go
 end
 
 to produce_gf
+  ;; TODO: currently gf is outputted on currently occupied patch. Should maybe output gf in area surrounding to promote sharing
   set gf gf + output-gf  ; instead of step, just output gf
 end
 
@@ -126,10 +127,8 @@ to kill-turtles
   ]
 end
 
-;; find the hottest or coolest location next to me; also
-;; take my current patch into consideration
 to-report best-patch  ;; turtle procedure
-  ifelse gf < gf-reproduction-threshold
+  ifelse gf < gf-reproduction-threshold  ;; TODO: currently only looking at current patch. Also should look at patch next to me
     [ let winner max-one-of neighbors [gf]
       ifelse [gf] of winner > gf
         [ report winner ]
@@ -229,7 +228,7 @@ cell-count
 cell-count
 1
 500
-100.0
+21.0
 1
 1
 cells
@@ -278,7 +277,7 @@ evaporation-rate
 evaporation-rate
 0
 1
-0.04
+0.0
 0.01
 1
 NIL
@@ -293,7 +292,7 @@ diffusion-rate
 diffusion-rate
 0
 1
-0.0
+1.0
 0.1
 1
 NIL
@@ -308,7 +307,7 @@ max-output-gf
 max-output-gf
 0
 100
-10.0
+11.0
 1
 1
 NIL
@@ -412,7 +411,7 @@ carrying-capacity
 carrying-capacity
 100
 1000
-850.0
+250.0
 50
 1
 NIL
@@ -442,7 +441,7 @@ gf-reproduction-threshold
 gf-reproduction-threshold
 0
 200
-15.0
+12.0
 1
 1
 NIL
@@ -477,7 +476,7 @@ cancer-death-rate
 cancer-death-rate
 0
 1
-0.15
+0.35
 0.01
 1
 NIL
@@ -492,7 +491,7 @@ normal-death-rate
 normal-death-rate
 0
 1
-0.1
+0.2
 0.01
 1
 NIL
