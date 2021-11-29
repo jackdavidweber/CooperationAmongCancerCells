@@ -67,6 +67,7 @@ to produce_gf
   ]
 end
 
+;; TODO: max figure this out
 to recolor-patches
   ;; hotter patches will be red verging on white;
   ;; cooler patches will be black
@@ -110,11 +111,10 @@ to reproduce ;; each turtle reproduces according to its fitness and then dies
 end
 
 ;; kill turtles in excess of carrying capacity
-;; note that reds and greens have equal probability of dying
+;; note that reds, yellows, and pinks have equal probability of dying
 to kill-turtles
   ask turtles [
-    if color = red and random 100 < 100 * cancer-death-rate [die]
-    if color = blue and random 100 < 100 * aa-death-rate [die]
+    if color != green and random 100 < 100 * cancer-death-rate [die]
     if color = green and random 100 < 100 * normal-death-rate [die]
   ]
 
@@ -276,7 +276,7 @@ evaporation-rate
 evaporation-rate
 0
 1
-0.0
+0.01
 0.01
 1
 NIL
@@ -291,7 +291,7 @@ diffusion-rate
 diffusion-rate
 0
 1
-1.0
+0.6
 0.1
 1
 NIL
@@ -417,21 +417,6 @@ NIL
 HORIZONTAL
 
 SLIDER
-389
-440
-561
-473
-mutation-rate
-mutation-rate
-0
-1
-0.66
-0.01
-1
-NIL
-HORIZONTAL
-
-SLIDER
 388
 577
 609
@@ -498,30 +483,15 @@ NIL
 HORIZONTAL
 
 SLIDER
-625
-540
-797
-573
-aa-death-rate
-aa-death-rate
-0
-1
-0.05
-0.01
-1
-NIL
-HORIZONTAL
-
-SLIDER
 389
-488
+433
 561
-521
+466
 prob-gfy-mutation
 prob-gfy-mutation
 0
 100
-50.0
+15.0
 1
 1
 NIL
@@ -529,14 +499,14 @@ HORIZONTAL
 
 SLIDER
 389
-532
+477
 562
-565
+510
 prob-gfp-mutation
 prob-gfp-mutation
 0
 100
-50.0
+15.0
 1
 1
 NIL
