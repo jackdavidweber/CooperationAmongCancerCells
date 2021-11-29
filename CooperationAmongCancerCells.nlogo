@@ -29,20 +29,25 @@ end
 
 to go
   if not any? turtles [ stop ]
-  ;; diffuse gf through world
+
+  ;; diffuse both gf through world
   diffuse gfa diffusion-rate
+  diffuse gfb diffusion-rate
   ;; The world retains a percentage of its gf each cycle.
   ;; (The Swarm and Repast versions have 1.0 meaning no
   ;; evaporation and 0.0 meaning complete evaporation;
   ;; we reverse the scale to better match the name.)
   ask patches [ set gfa gfa * (1 - evaporation-rate) ]
+  ask patches [ set gfb gfb * (1 - evaporation-rate) ]
+
   ;; agentsets in NetLogo are always in random order, so
   ;; "ask turtles" automatically shuffles the order of execution
   ;; each time.
   ask turtles [
-    if color = red [produce_gf]
+    produce_gf
     reproduce
   ]
+
   kill-turtles
   ;; recolor-turtles
   recolor-patches
@@ -51,7 +56,16 @@ end
 
 to produce_gf
   ;; TODO: currently gf is outputted on currently occupied patch. Should maybe output gf in area surrounding to promote sharing
-  set gfa gfa + output-gfa  ; instead of step, just output gf
+  if color = red [
+    set gfa gfa + output-gfa
+    set gfb gfb + output-gfb
+  ]
+  if color = yellow [
+    set gfa gfa + output-gfa
+  ]
+  if color = orange [
+    set gfb gfb + output-gfb
+  ]
 end
 
 to recolor-patches
@@ -68,9 +82,12 @@ end
 
 to reproduce ;; each turtle reproduces according to its fitness and then dies
   ;; If cell is cancerous, then it requires GF in order to reproduce
-  if color = red or color = blue[
-    ifelse gfa >= gf-reproduction-threshold
-    [set gfa gfa - gf-reproduction-threshold]
+  if color != green[
+    ifelse gfa >= gf-reproduction-threshold and gfb >= gf-reproduction-threshold
+    [
+      set gfa gfa - gf-reproduction-threshold
+      set gfb gfb - gf-reproduction-threshold
+    ]
     [stop]  ;; cell cannot reproduce without sufficient GF
   ]
   hatch fertility [
