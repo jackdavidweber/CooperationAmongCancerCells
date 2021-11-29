@@ -2,13 +2,12 @@
 turtles-own
 [
   fertility
-                   ;;   temperature and the actual current temperature here
 ]
 
 patches-own
 [
-  gfa             ;; short for growth factor
-  gfb            ;; short for anti-apoptosis
+  gfy            ;; short for growth factor a (produced by yellow & red)
+  gfp            ;; short for growth factor b (produced by pink & red)
 ]
 
 to setup
@@ -31,14 +30,14 @@ to go
   if not any? turtles [ stop ]
 
   ;; diffuse both gf through world
-  diffuse gfa diffusion-rate
-  diffuse gfb diffusion-rate
+  diffuse gfy diffusion-rate
+  diffuse gfp diffusion-rate
   ;; The world retains a percentage of its gf each cycle.
   ;; (The Swarm and Repast versions have 1.0 meaning no
   ;; evaporation and 0.0 meaning complete evaporation;
   ;; we reverse the scale to better match the name.)
-  ask patches [ set gfa gfa * (1 - evaporation-rate) ]
-  ask patches [ set gfb gfb * (1 - evaporation-rate) ]
+  ask patches [ set gfy gfy * (1 - evaporation-rate) ]
+  ask patches [ set gfp gfp * (1 - evaporation-rate) ]
 
   ;; agentsets in NetLogo are always in random order, so
   ;; "ask turtles" automatically shuffles the order of execution
@@ -57,21 +56,21 @@ end
 to produce_gf
   ;; TODO: currently gf is outputted on currently occupied patch. Should maybe output gf in area surrounding to promote sharing
   if color = red [
-    set gfa gfa + output-gfa
-    set gfb gfb + output-gfb
+    set gfy gfy + output-gfy
+    set gfp gfp + output-gfp
   ]
   if color = yellow [
-    set gfa gfa + output-gfa
+    set gfy gfy + output-gfy
   ]
-  if color = orange [
-    set gfb gfb + output-gfb
+  if color = pink [
+    set gfp gfp + output-gfp
   ]
 end
 
 to recolor-patches
   ;; hotter patches will be red verging on white;
   ;; cooler patches will be black
-  ask patches [ set pcolor scale-color red gfa 0 150 ]
+  ask patches [ set pcolor scale-color red gfy 0 150 ]
 end
 
 
@@ -83,21 +82,24 @@ end
 to reproduce ;; each turtle reproduces according to its fitness and then dies
   ;; If cell is cancerous, then it requires GF in order to reproduce
   if color != green[
-    ifelse gfa >= gf-reproduction-threshold and gfb >= gf-reproduction-threshold
+    ifelse gfy >= gf-reproduction-threshold and gfp >= gf-reproduction-threshold
     [
-      set gfa gfa - gf-reproduction-threshold
-      set gfb gfb - gf-reproduction-threshold
+      set gfy gfy - gf-reproduction-threshold
+      set gfp gfp - gf-reproduction-threshold
     ]
     [stop]  ;; cell cannot reproduce without sufficient GF
   ]
   hatch fertility [
-    ;; Randomly mutate healthy cells only.
+    ;; Randomly mutate all non-cells.
     ;; TODO: figure out whether cancerous cells can mutate and stop double counting mutation rate.
-    if color = green [
-      if random 100 < 100 * mutation-rate [
-        ;; Equally likely to mutate to be red or blue
-        ifelse random 100 < 50 [set color red] [set color blue]
-      ]
+
+    if random 100 < prob-gfy-mutation [
+      if color = green [set color yellow]
+      if color = pink [set color red]
+    ]
+    if random 100 < prob-gfp-mutation [
+      if color = green [set color pink]
+      if color = yellow [set color red]
     ]
 
     set fertility 1  ;; TODO: make cancer cells have higher fertility than normal cells
@@ -125,13 +127,13 @@ to kill-turtles
 end
 
 to-report best-patch  ;; turtle procedure
-  ifelse gfa < gf-reproduction-threshold  ;; TODO: currently only looking at current patch. Also should look at patch next to me
-    [ let winner max-one-of neighbors [gfa]
-      ifelse [gfa] of winner > gfa
+  ifelse gfy < gf-reproduction-threshold  ;; TODO: currently only looking at current patch. Also should look at patch next to me
+    [ let winner max-one-of neighbors [gfy]
+      ifelse [gfy] of winner > gfy
         [ report winner ]
         [ report patch-here ] ]
-    [ let winner min-one-of neighbors [gfa]
-      ifelse [gfa] of winner < gfa
+    [ let winner min-one-of neighbors [gfy]
+      ifelse [gfy] of winner < gfy
         [ report winner ]
         [ report patch-here ] ]
 end
@@ -176,13 +178,13 @@ end
 ;;; in the interface
 
 ;; remove all gf from the world
-to gfa-nowhere
-  ask patches [ set gfa 0 ]
+to gfy-nowhere
+  ask patches [ set gfy 0 ]
 end
 
 ;; add max-output-gf to all locations in the world
-to gfa-everywhere
-  ask patches [ set gfa gfa + output-gfa ]
+to gfy-everywhere
+  ask patches [ set gfy gfy + output-gfy ]
 end
 
 
@@ -300,8 +302,8 @@ SLIDER
 102
 362
 135
-output-gfb
-output-gfb
+output-gfp
+output-gfp
 0
 100
 11.0
@@ -315,11 +317,11 @@ SLIDER
 69
 362
 102
-output-gfa
-output-gfa
+output-gfy
+output-gfy
 0
 100
-8.0
+9.0
 1
 1
 NIL
@@ -331,7 +333,7 @@ BUTTON
 343
 178
 NIL
-gfa-nowhere
+gfy-nowhere
 NIL
 1
 T
@@ -348,7 +350,7 @@ BUTTON
 360
 211
 NIL
-gfa-everywhere
+gfy-everywhere
 NIL
 1
 T
@@ -431,9 +433,9 @@ HORIZONTAL
 
 SLIDER
 388
-486
+577
 609
-519
+610
 gf-reproduction-threshold
 gf-reproduction-threshold
 0
@@ -461,8 +463,9 @@ false
 "" ""
 PENS
 "default" 1.0 0 -2674135 true "" "plot count turtles with [color = red]"
-"pen-1" 1.0 0 -13345367 true "" "plot count turtles with [color = blue]"
+"pen-1" 1.0 0 -2064490 true "" "plot count turtles with [color = pink]"
 "pen-2" 1.0 0 -10899396 true "" "plot count turtles with [color = green]"
+"pen-3" 1.0 0 -1184463 true "" "plot count turtles with [color = yellow]"
 
 SLIDER
 626
@@ -505,6 +508,36 @@ aa-death-rate
 1
 0.05
 0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+389
+488
+561
+521
+prob-gfy-mutation
+prob-gfy-mutation
+0
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+389
+532
+562
+565
+prob-gfp-mutation
+prob-gfp-mutation
+0
+100
+50.0
+1
 1
 NIL
 HORIZONTAL
