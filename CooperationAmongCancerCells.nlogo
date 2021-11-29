@@ -1,32 +1,24 @@
-globals [ color-by-unhappiness? ]
 
 turtles-own
 [
-  output-gf      ;; How much gf I emit per time step
-  unhappiness      ;; The magnitude of the difference between my ideal
   fertility
                    ;;   temperature and the actual current temperature here
 ]
 
 patches-own
 [
-  gf             ;; short for growth factor
-  aa             ;; short for anti-apoptosis
+  gfa             ;; short for growth factor
+  gfb            ;; short for anti-apoptosis
 ]
 
 to setup
   clear-all
-  set color-by-unhappiness? false
-
   ;; creating the bugs the following way ensures that we won't
   ;; wind up with more than one bug on a patch
   ask n-of cell-count patches [
     sprout 1 [
-      set output-gf min-output-gf + random (max-output-gf - min-output-gf)
-      set unhappiness abs (gf-reproduction-threshold - gf)
       set fertility 1
       set color green
-      ;; color-by-ideal-temp
       face one-of neighbors
       set size 2  ;; easier to see
     ]
@@ -35,19 +27,15 @@ to setup
   reset-ticks
 end
 
-to color-by-unhappiness [ max-unhappiness ]
-  set color scale-color green unhappiness  max-unhappiness 0
-end
-
 to go
   if not any? turtles [ stop ]
   ;; diffuse gf through world
-  diffuse gf diffusion-rate
+  diffuse gfa diffusion-rate
   ;; The world retains a percentage of its gf each cycle.
   ;; (The Swarm and Repast versions have 1.0 meaning no
   ;; evaporation and 0.0 meaning complete evaporation;
   ;; we reverse the scale to better match the name.)
-  ask patches [ set gf gf * (1 - evaporation-rate) ]
+  ask patches [ set gfa gfa * (1 - evaporation-rate) ]
   ;; agentsets in NetLogo are always in random order, so
   ;; "ask turtles" automatically shuffles the order of execution
   ;; each time.
@@ -63,21 +51,13 @@ end
 
 to produce_gf
   ;; TODO: currently gf is outputted on currently occupied patch. Should maybe output gf in area surrounding to promote sharing
-  set gf gf + output-gf  ; instead of step, just output gf
-end
-
-to recolor-turtles
-  if color-by-unhappiness?
-  [
-    let max-unhappiness max [unhappiness] of turtles
-    ask turtles [ color-by-unhappiness max-unhappiness ]
-  ]
+  set gfa gfa + output-gfa  ; instead of step, just output gf
 end
 
 to recolor-patches
   ;; hotter patches will be red verging on white;
   ;; cooler patches will be black
-  ask patches [ set pcolor scale-color red gf 0 150 ]
+  ask patches [ set pcolor scale-color red gfa 0 150 ]
 end
 
 
@@ -89,8 +69,8 @@ end
 to reproduce ;; each turtle reproduces according to its fitness and then dies
   ;; If cell is cancerous, then it requires GF in order to reproduce
   if color = red or color = blue[
-    ifelse gf >= gf-reproduction-threshold
-    [set gf gf - gf-reproduction-threshold]
+    ifelse gfa >= gf-reproduction-threshold
+    [set gfa gfa - gf-reproduction-threshold]
     [stop]  ;; cell cannot reproduce without sufficient GF
   ]
   hatch fertility [
@@ -128,13 +108,13 @@ to kill-turtles
 end
 
 to-report best-patch  ;; turtle procedure
-  ifelse gf < gf-reproduction-threshold  ;; TODO: currently only looking at current patch. Also should look at patch next to me
-    [ let winner max-one-of neighbors [gf]
-      ifelse [gf] of winner > gf
+  ifelse gfa < gf-reproduction-threshold  ;; TODO: currently only looking at current patch. Also should look at patch next to me
+    [ let winner max-one-of neighbors [gfa]
+      ifelse [gfa] of winner > gfa
         [ report winner ]
         [ report patch-here ] ]
-    [ let winner min-one-of neighbors [gf]
-      ifelse [gf] of winner < gf
+    [ let winner min-one-of neighbors [gfa]
+      ifelse [gfa] of winner < gfa
         [ report winner ]
         [ report patch-here ] ]
 end
@@ -179,13 +159,13 @@ end
 ;;; in the interface
 
 ;; remove all gf from the world
-to gf-nowhere
-  ask patches [ set gf 0 ]
+to gfa-nowhere
+  ask patches [ set gfa 0 ]
 end
 
 ;; add max-output-gf to all locations in the world
-to gf-everywhere
-  ask patches [ set gf gf + max-output-gf ]
+to gfa-everywhere
+  ask patches [ set gfa gfa + output-gfa ]
 end
 
 
@@ -303,8 +283,8 @@ SLIDER
 102
 362
 135
-max-output-gf
-max-output-gf
+output-gfb
+output-gfb
 0
 100
 11.0
@@ -318,8 +298,8 @@ SLIDER
 69
 362
 102
-min-output-gf
-min-output-gf
+output-gfa
+output-gfa
 0
 100
 8.0
@@ -329,12 +309,12 @@ NIL
 HORIZONTAL
 
 BUTTON
-250
-151
-354
-184
+232
+145
+343
+178
 NIL
-gf-nowhere
+gfa-nowhere
 NIL
 1
 T
@@ -346,12 +326,12 @@ NIL
 1
 
 BUTTON
-250
-184
-371
-217
+232
+178
+360
+211
 NIL
-gf-everywhere
+gfa-everywhere
 NIL
 1
 T
@@ -426,7 +406,7 @@ mutation-rate
 mutation-rate
 0
 1
-0.3
+0.66
 0.01
 1
 NIL
@@ -441,7 +421,7 @@ gf-reproduction-threshold
 gf-reproduction-threshold
 0
 200
-12.0
+6.0
 1
 1
 NIL
@@ -840,7 +820,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.2.1
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
