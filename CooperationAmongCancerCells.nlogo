@@ -19,7 +19,7 @@ to setup
       set color green
       if not mutation-occurs
       [
-        ifelse random 100 < (prob-gfy-mutation * prob-gfp-mutation) / 100
+        ifelse 100 < (prob-gfy-mutation * prob-gfp-mutation) / 100
         [
           set color red
         ]
@@ -303,7 +303,7 @@ diffusion-rate
 diffusion-rate
 0
 1
-1.0
+0.9
 0.1
 1
 NIL
@@ -318,7 +318,7 @@ output-gfp
 output-gfp
 0
 100
-26.0
+100.0
 1
 1
 NIL
@@ -333,7 +333,7 @@ output-gfy
 output-gfy
 0
 100
-26.0
+100.0
 1
 1
 NIL
@@ -422,7 +422,7 @@ carrying-capacity
 carrying-capacity
 100
 1000
-250.0
+1000.0
 50
 1
 NIL
@@ -503,7 +503,7 @@ prob-gfy-mutation
 prob-gfy-mutation
 0
 100
-59.0
+90.0
 1
 1
 NIL
@@ -518,7 +518,7 @@ prob-gfp-mutation
 prob-gfp-mutation
 0
 100
-6.0
+89.0
 1
 1
 NIL
