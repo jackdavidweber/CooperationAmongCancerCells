@@ -106,15 +106,15 @@ end
 
 to get_energy
   if color = yellow [
-    set energy energy + gfp * cancer-energy-multiplier  ;; TODO: confirm that gfp is only the gfp of the patch the turtle is on
+    set energy energy + gfp * gf-energy-multiplier  ;; TODO: confirm that gfp is only the gfp of the patch the turtle is on
     set gfp 0
   ]
   if color = pink [
-    set energy energy + gfy * cancer-energy-multiplier
+    set energy energy + gfy * gf-energy-multiplier
     set gfy 0
   ]
   if color = red [
-    set energy energy + (gfp + gfy) * cancer-energy-multiplier
+    set energy energy + (gfp + gfy) * gf-energy-multiplier
     set gfp 0
     set gfy 0
   ]
@@ -355,7 +355,7 @@ output-gfy
 output-gfy
 0
 100
-61.0
+60.0
 1
 1
 NIL
@@ -444,7 +444,7 @@ carrying-capacity
 carrying-capacity
 1000
 8000
-8000.0
+3450.0
 50
 1
 NIL
@@ -480,7 +480,7 @@ prob-gfy-mutation
 prob-gfy-mutation
 0
 100
-39.0
+15.0
 1
 1
 NIL
@@ -495,7 +495,7 @@ prob-gfp-mutation
 prob-gfp-mutation
 0
 100
-38.0
+15.0
 1
 1
 NIL
@@ -520,8 +520,8 @@ SLIDER
 reproduction-energy
 reproduction-energy
 0
-100
-3.0
+10
+2.0
 1
 1
 NIL
@@ -532,11 +532,11 @@ SLIDER
 575
 606
 608
-cancer-energy-multiplier
-cancer-energy-multiplier
+gf-energy-multiplier
+gf-energy-multiplier
 0
 5
-1.0
+4.0
 1
 1
 NIL
@@ -576,6 +576,28 @@ red-produces-gf
 
 
 ## HOW TO USE IT
+
+## Some good defaults:
+* cell-count = 1000
+* output-gfy = 60
+* output-gfp = 60
+* evaporation-rate = 0
+* diffusion-rate = 1
+* prob-gfy-mutation = 15
+* prob-gfp-mutation = 15
+* mutation-occurs = Off (means that mutation does not happen every time cell reproduces)
+* gf-energy-multiplier = 4 (means that consuming 1 gf results in 4 energy)
+* energy-to-all-turtles-per-tick =- 1
+* reproduction-energy = 2 (means that 2 energy is required to reproduce a single offspring)
+* carrying-capacity = 8000
+* red-produces-gf = Off (means that red cancer cells can consume both kinds of gf but do not produce)
+
+### What you will see
+Groups of yellow and pink cells cluster together. Red cells surround them.
+
+### Things to try
+* decrease carrying capacity
+* allow red to produce gf 
 
 
 ## RELATED MODELS
