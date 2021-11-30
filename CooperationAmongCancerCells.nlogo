@@ -1,4 +1,3 @@
-
 turtles-own
 [
   fertility
@@ -18,6 +17,18 @@ to setup
     sprout 1 [
       set fertility 1
       set color green
+      if not mutation-occurs
+      [
+        ifelse random 100 < (prob-gfy-mutation * prob-gfp-mutation) / 100
+        [
+          set color red
+        ]
+        [
+          if random 100 < prob-gfy-mutation [set color yellow]
+          if random 100 < prob-gfp-mutation [set color pink]
+        ]
+      ]
+
       face one-of neighbors
       set size 2  ;; easier to see
     ]
@@ -93,14 +104,15 @@ to reproduce ;; each turtle reproduces according to its fitness and then dies
   hatch fertility [
     ;; Randomly mutate all non-cells.
     ;; TODO: figure out whether cancerous cells can mutate and stop double counting mutation rate.
-
-    if random 100 < prob-gfy-mutation [
-      if color = green [set color yellow]
-      if color = pink [set color red]
-    ]
-    if random 100 < prob-gfp-mutation [
-      if color = green [set color pink]
-      if color = yellow [set color red]
+    if mutation-occurs [
+      if random 100 < prob-gfy-mutation [
+        if color = green [set color yellow]
+        if color = pink [set color red]
+      ]
+      if random 100 < prob-gfp-mutation [
+        if color = green [set color pink]
+        if color = yellow [set color red]
+      ]
     ]
 
     set fertility 1  ;; TODO: make cancer cells have higher fertility than normal cells
@@ -227,7 +239,7 @@ cell-count
 cell-count
 1
 500
-21.0
+500.0
 1
 1
 cells
@@ -291,7 +303,7 @@ diffusion-rate
 diffusion-rate
 0
 1
-0.6
+1.0
 0.1
 1
 NIL
@@ -306,7 +318,7 @@ output-gfp
 output-gfp
 0
 100
-11.0
+26.0
 1
 1
 NIL
@@ -321,7 +333,7 @@ output-gfy
 output-gfy
 0
 100
-9.0
+26.0
 1
 1
 NIL
@@ -461,7 +473,7 @@ cancer-death-rate
 cancer-death-rate
 0
 1
-0.35
+0.0
 0.01
 1
 NIL
@@ -476,7 +488,7 @@ normal-death-rate
 normal-death-rate
 0
 1
-0.2
+0.0
 0.01
 1
 NIL
@@ -491,7 +503,7 @@ prob-gfy-mutation
 prob-gfy-mutation
 0
 100
-15.0
+59.0
 1
 1
 NIL
@@ -506,11 +518,22 @@ prob-gfp-mutation
 prob-gfp-mutation
 0
 100
-15.0
+6.0
 1
 1
 NIL
 HORIZONTAL
+
+SWITCH
+399
+533
+561
+566
+mutation-occurs
+mutation-occurs
+1
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -840,7 +863,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.2.0
+NetLogo 6.2.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
