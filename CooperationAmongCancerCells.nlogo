@@ -1,6 +1,7 @@
 turtles-own
 [
   fertility
+  energy
 ]
 
 patches-own
@@ -19,7 +20,7 @@ to setup
       set color green
       if not mutation-occurs
       [
-        ifelse 100 < (prob-gfy-mutation * prob-gfp-mutation) / 100
+        ifelse random 100 < (prob-gfy-mutation * prob-gfp-mutation) / 100
         [
           set color red
         ]
@@ -55,6 +56,7 @@ to go
   ;; each time.
   ask turtles [
     produce_gf
+    consume_gf
     reproduce
   ]
 
@@ -78,6 +80,24 @@ to produce_gf
   ]
 end
 
+to consume_gf
+  if color = yellow [
+    set energy energy + gfp  ;; TODO: confirm that gfp is only the gfp of the patch the turtle is on
+    set gfp 0
+  ]
+  if color = pink [
+    set energy energy + gfy
+    set gfy 0
+  ]
+  if color = red [
+    set energy energy + gfp + gfy
+    set gfp 0
+    set gfy 0
+  ]
+
+  ;; TODO: add energy for green
+end
+
 ;; TODO: max figure this out
 to recolor-patches
   ;; hotter patches will be red verging on white;
@@ -92,15 +112,9 @@ to find-empty-patch-or-die
 end
 
 to reproduce ;; each turtle reproduces according to its fitness and then dies
-  ;; If cell is cancerous, then it requires GF in order to reproduce
-  if color != green[
-    ifelse gfy >= gf-reproduction-threshold and gfp >= gf-reproduction-threshold
-    [
-      set gfy gfy - gf-reproduction-threshold
-      set gfp gfp - gf-reproduction-threshold
-    ]
-    [stop]  ;; cell cannot reproduce without sufficient GF
-  ]
+  set fertility floor energy / reproduction-threshold
+  set energy energy - fertility * reproduction-threshold
+
   hatch fertility [
     ;; Randomly mutate all non-cells.
     ;; TODO: figure out whether cancerous cells can mutate and stop double counting mutation rate.
@@ -115,7 +129,7 @@ to reproduce ;; each turtle reproduces according to its fitness and then dies
       ]
     ]
 
-    set fertility 1  ;; TODO: make cancer cells have higher fertility than normal cells
+    set energy 10  ;; TODO: make cancer cells have higher energy than normal cells
 
     ;; move offspring to an adjacent empty patch. If no empty patches exist, offspring dies.
     find-empty-patch-or-die
@@ -136,18 +150,6 @@ to kill-turtles
     let num-to-die num-turtles - carrying-capacity
     ask n-of num-to-die turtles [ die ]
   ]
-end
-
-to-report best-patch  ;; turtle procedure
-  ifelse gfy < gf-reproduction-threshold  ;; TODO: currently only looking at current patch. Also should look at patch next to me
-    [ let winner max-one-of neighbors [gfy]
-      ifelse [gfy] of winner > gfy
-        [ report winner ]
-        [ report patch-here ] ]
-    [ let winner min-one-of neighbors [gfy]
-      ifelse [gfy] of winner < gfy
-        [ report winner ]
-        [ report patch-here ] ]
 end
 
 to bug-move [target]  ;; turtle procedure
@@ -433,11 +435,11 @@ SLIDER
 577
 609
 610
-gf-reproduction-threshold
-gf-reproduction-threshold
+reproduction-threshold
+reproduction-threshold
 0
 200
-6.0
+7.0
 1
 1
 NIL
@@ -534,6 +536,21 @@ mutation-occurs
 1
 1
 -1000
+
+SLIDER
+668
+585
+853
+618
+reproduction-energy
+reproduction-energy
+0
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
