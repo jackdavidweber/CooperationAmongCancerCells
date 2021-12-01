@@ -349,7 +349,7 @@ carrying-capacity
 carrying-capacity
 1000
 8000
-3450.0
+8000.0
 50
 1
 NIL
@@ -385,7 +385,7 @@ prob-gfy-mutation
 prob-gfy-mutation
 0
 100
-15.0
+1.0
 1
 1
 NIL
@@ -400,7 +400,7 @@ prob-gfp-mutation
 prob-gfp-mutation
 0
 100
-15.0
+1.0
 1
 1
 NIL
