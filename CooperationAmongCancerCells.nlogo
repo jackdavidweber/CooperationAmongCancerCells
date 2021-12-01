@@ -15,7 +15,7 @@ to setup
   ;; wind up with more than one bug on a patch
   ask n-of cell-count patches [
     sprout 1 [
-      set energy 1000
+      set energy 10
       set color green
       if not mutation-occurs
       [
@@ -72,6 +72,7 @@ to produce_gf
   let actual-output-gfp output-gfp
 
   ;; TODO: currently gf is outputted on currently occupied patch. Should maybe output gf in area surrounding to promote sharing
+  ;; Something to look into if we have time - max
   if color = red [
     ifelse red-produces-gf
     [
@@ -106,28 +107,38 @@ end
 
 to get_energy
   if color = yellow [
-    set energy energy + gfp * gf-energy-multiplier  ;; TODO: confirm that gfp is only the gfp of the patch the turtle is on
-    set gfp 0
+    let actual-gfp min(list gfp max-gf-consumption)
+    set energy energy + actual-gfp * gf-energy-multiplier  ;; TODO: confirm that gfp is only the gfp of the patch the turtle is on
+    set gfp gfp - actual-gfp
   ]
   if color = pink [
-    set energy energy + gfy * gf-energy-multiplier
-    set gfy 0
+    let actual-gfy min(list gfy max-gf-consumption)
+    set energy energy + actual-gfy * gf-energy-multiplier
+    set gfy gfy - actual-gfy
   ]
   if color = red [
-    set energy energy + (gfp + gfy) * gf-energy-multiplier
-    set gfp 0
-    set gfy 0
+    let actual-gfp min(list gfp max-gf-consumption)
+    set energy energy + actual-gfp * gf-energy-multiplier
+    set gfp gfp - actual-gfp
+
+    let actual-gfy min(list gfy max-gf-consumption)
+    set energy energy + actual-gfy * gf-energy-multiplier
+    set gfy gfy - actual-gfy
   ]
 
   set energy energy + energy-to-all-turtles-per-tick
   ;; TODO: add energy for green
 end
 
-;; TODO: max figure this out
 to recolor-patches
-  ;; hotter patches will be red verging on white;
-  ;; cooler patches will be black
-  ask patches [ set pcolor scale-color red gfy 0 150 ]
+  ;; more gfy = red (255 0 0)
+  ;; more gfp = blue (0 0 255)
+  ;; both = magenta (255 0 255)
+  ;; 1.7 is the correct magic number for scaling, I think
+
+  ;; a cool thing that didn't work: ask patches [ set pcolor (list (255 - (e ^ (- 0.0005 * (gfy - 1108.252)))) 0 (255 - (e ^ (-0.0005 * (gfp - 1108.252))))) ]
+
+  ask patches [ set pcolor (list (min (list (gfy * 1.7) 255)) 0 (min (list (gfp * 1.7) 255))) ]
 end
 
 
@@ -147,14 +158,18 @@ to reproduce ;; each turtle reproduces according to its fitness and then dies
       if random 100 < prob-gfy-mutation [
         if color = green [set color yellow]
         if color = pink [set color red]
+        ;;if we want to force cooperation:
+        ;;if color = pink and random 50 < prob-gfy-mutation [set color red]
       ]
       if random 100 < prob-gfp-mutation [
         if color = green [set color pink]
         if color = yellow [set color red]
+        ;;if we want to force cooperation:
+        ;;if color = yellow and random 50 < prob-gfp-mutation [set color red]
       ]
     ]
 
-    set energy 1  ;; TODO: make cancer cells have higher energy than normal cells
+    set energy 10  ;; TODO: make cancer cells have higher energy than normal cells
 
     ;; move offspring to an adjacent empty patch. If no empty patches exist, offspring dies.
     find-empty-patch-or-die
@@ -164,6 +179,12 @@ end
 ;; kill turtles in excess of carrying capacity
 ;; note that reds, yellows, and pinks have equal probability of dying
 to kill-turtles
+  ask turtles [
+    if color = red and random 100 < 100 * normal-death-rate * 10 * gf-penalty [die]
+    if color = green and random 100 < 100 * normal-death-rate [die]
+    if color != green and color != red and random 100 < 100 * normal-death-rate * gf-penalty [die]
+  ]
+
   ;; Kill remaining turtles based on carrying-capacity
   let num-turtles count turtles
   if num-turtles > carrying-capacity [
@@ -219,6 +240,11 @@ end
 ;; add max-output-gf to all locations in the world
 to gfy-everywhere
   ask patches [ set gfy gfy + output-gfy ]
+end
+
+;; add max-output-gf to all locations in the world
+to gfp-everywhere
+  ask patches [ set gfp gfp + output-gfp ]
 end
 
 
@@ -303,9 +329,9 @@ NIL
 
 SLIDER
 164
-236
-357
 269
+357
+302
 evaporation-rate
 evaporation-rate
 0
@@ -318,9 +344,9 @@ HORIZONTAL
 
 SLIDER
 164
-270
-357
 303
+357
+336
 diffusion-rate
 diffusion-rate
 0
@@ -340,7 +366,7 @@ output-gfp
 output-gfp
 0
 100
-60.0
+83.0
 1
 1
 NIL
@@ -480,7 +506,7 @@ prob-gfy-mutation
 prob-gfy-mutation
 0
 100
-15.0
+1.0
 1
 1
 NIL
@@ -495,7 +521,7 @@ prob-gfp-mutation
 prob-gfp-mutation
 0
 100
-15.0
+1.0
 1
 1
 NIL
@@ -508,7 +534,7 @@ SWITCH
 566
 mutation-occurs
 mutation-occurs
-1
+0
 1
 -1000
 
@@ -536,17 +562,17 @@ gf-energy-multiplier
 gf-energy-multiplier
 0
 5
-4.0
+1.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-398
-630
-630
-663
+117
+611
+349
+644
 energy-to-all-turtles-per-tick
 energy-to-all-turtles-per-tick
 0
@@ -567,6 +593,112 @@ red-produces-gf
 1
 1
 -1000
+
+BUTTON
+232
+212
+361
+245
+NIL
+gfp-everywhere
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+MONITOR
+26
+553
+83
+598
+yellow
+count turtles with [color = yellow]
+17
+1
+11
+
+MONITOR
+26
+605
+83
+650
+red
+count turtles with [color = pink]
+17
+1
+11
+
+SLIDER
+11
+72
+183
+105
+normal-death-rate
+normal-death-rate
+0
+1
+0.01
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+11
+119
+183
+152
+gf-penalty
+gf-penalty
+0
+2
+2.0
+0.1
+1
+NIL
+HORIZONTAL
+
+MONITOR
+114
+559
+171
+604
+red
+count turtles with [color = red]
+17
+1
+11
+
+MONITOR
+195
+561
+252
+606
+green
+count turtles with [color = green]
+17
+1
+11
+
+SLIDER
+461
+619
+649
+652
+max-gf-consumption
+max-gf-consumption
+0
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -918,7 +1050,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.2.1
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
