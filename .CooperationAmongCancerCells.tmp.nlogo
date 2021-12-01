@@ -157,15 +157,15 @@ to reproduce ;; each turtle reproduces according to its fitness and then dies
     if mutation-occurs [
       if random 100 < prob-gfy-mutation [
         if color = green [set color yellow]
-        if color = pink [set color red]
-        ;;if we want to force cooperation:
-        ;;if color = pink and random 50 < prob-gfy-mutation [set color red]
+
+        ;; if we want to force cooperation:
+        ;if color = pink and random 50 < prob-gfy-mutation [set color red]
       ]
       if random 100 < prob-gfp-mutation [
         if color = green [set color pink]
-        if color = yellow [set color red]
-        ;;if we want to force cooperation:
-        ;;if color = yellow and random 50 < prob-gfp-mutation [set color red]
+
+        ;; if we want to force cooperation:
+        if color = yellow and random 50 < prob-gfp-mutation [set color red]
       ]
     ]
 
@@ -590,7 +590,7 @@ SWITCH
 546
 red-produces-gf
 red-produces-gf
-1
+0
 1
 -1000
 
@@ -694,7 +694,7 @@ max-gf-consumption
 max-gf-consumption
 0
 100
-50.0
+10.0
 1
 1
 NIL
