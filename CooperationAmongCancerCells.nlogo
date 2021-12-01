@@ -13,9 +13,9 @@ to setup
   clear-all
   ;; creating the bugs the following way ensures that we won't
   ;; wind up with more than one bug on a patch
-  ask n-of cell-count patches [
+  ask n-of carrying-capacity patches [
     sprout 1 [
-      set energy 1000
+      set energy 10
       set color green
       if not mutation-occurs
       [
@@ -62,7 +62,6 @@ to go
   diffuse gfp diffusion-rate
 
   kill-turtles
-  ;; recolor-turtles
   recolor-patches
   tick
 end
@@ -123,13 +122,14 @@ to get_energy
   ;; TODO: add energy for green
 end
 
-;; TODO: max figure this out
 to recolor-patches
-  ;; hotter patches will be red verging on white;
-  ;; cooler patches will be black
-  ask patches [ set pcolor scale-color red gfy 0 150 ]
-end
+  ;; more gfy = red (255 0 0)
+  ;; more gfp = blue (0 0 255)
+  ;; both = magenta (255 0 255)
+  ;; 1.7 is the correct magic number for scaling, I think
 
+  ask patches [ set pcolor (list (min (list (gfy * 1.7) 255)) 0 (min (list (gfp * 1.7) 255))) ]
+end
 
 to find-empty-patch-or-die
   let target one-of neighbors with [not any? turtles-here]
@@ -170,42 +170,6 @@ to kill-turtles
     let num-to-die num-turtles - carrying-capacity
     ask n-of num-to-die turtles [ die ]
   ]
-end
-
-to bug-move [target]  ;; turtle procedure
-  ;; if we're already there, there's nothing to do
-  if target = patch-here [ stop ]
-  ;; move to the target patch (if it is not already occupied)
-  if not any? turtles-on target [
-    face target
-    move-to target
-    stop
-  ]
-  set target one-of neighbors with [not any? turtles-here]
-  if target != nobody [ move-to target ]
-  ;; The code above is a bit different from the original Heatbugs
-  ;; model in Swarm.  In the NetLogo version, the bug will always
-  ;; find an empty patch if one is available.
-  ;; In the Swarm version, the bug picks a random
-  ;; nearby patch, checks to see if it is occupied, and if it is,
-  ;; picks again.  If after 10 tries it hasn't found an empty
-  ;; patch, it gives up and stays where it is.  Since each try
-  ;; is random and independent, even if there is an available
-  ;; empty patch the bug will not always find it.  Presumably
-  ;; the Swarm version is coded that way because there is no
-  ;; concise equivalent in Swarm/Objective C to NetLogo's
-  ;; 'one-of neighbors with [not any? turtles-here]'.
-  ;; If you want to match the Swarm version exactly, remove the
-  ;; last two lines of code above and replace them with this:
-  ; let tries 0
-  ; while [tries <= 9]
-  ;   [ set tries tries + 1
-  ;     set target one-of neighbors
-  ;     if not any? turtles-on target [
-  ;       move-to target
-  ;       stop
-  ;     ]
-  ;   ]
 end
 
 ;;; the following procedures support the two extra buttons
@@ -252,26 +216,11 @@ GRAPHICS-WINDOW
 ticks
 30.0
 
-SLIDER
-14
-30
-276
-63
-cell-count
-cell-count
-1
-1000
-1000.0
-1
-1
-cells
-HORIZONTAL
-
 BUTTON
-27
-177
-96
-210
+22
+186
+91
+219
 NIL
 setup
 NIL
@@ -285,10 +234,10 @@ NIL
 1
 
 BUTTON
-98
-177
-166
-210
+93
+186
+161
+219
 NIL
 go
 T
@@ -302,25 +251,25 @@ NIL
 0
 
 SLIDER
-164
-236
-357
-269
+177
+171
+370
+204
 evaporation-rate
 evaporation-rate
 0
-1
+0.02
 0.0
-0.01
+0.001
 1
 NIL
 HORIZONTAL
 
 SLIDER
-164
-270
-357
-303
+177
+205
+370
+238
 diffusion-rate
 diffusion-rate
 0
@@ -332,10 +281,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-189
-102
-362
-135
+199
+112
+372
+145
 output-gfp
 output-gfp
 0
@@ -347,9 +296,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-189
+200
 69
-362
+373
 102
 output-gfy
 output-gfy
@@ -361,90 +310,46 @@ output-gfy
 NIL
 HORIZONTAL
 
-BUTTON
-232
-145
-343
-178
-NIL
-gfy-nowhere
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-232
-178
-360
-211
-NIL
-gfy-everywhere
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
 TEXTBOX
-10
-10
-160
-28
-Initial settings for cells
-11
-0.0
-0
-
-TEXTBOX
-13
-230
-140
-258
+8
+239
+135
+267
 Other parameters
 11
 0.0
 0
 
 TEXTBOX
-12
-156
-162
-174
+7
+165
+157
+183
 Actions
 11
 0.0
 0
 
 TEXTBOX
-12
-251
-153
-280
+7
+260
+148
+289
 (OK to change\nduring run)
 11
 0.0
 0
 
 SLIDER
-625
-434
-804
-467
+105
+30
+284
+63
 carrying-capacity
 carrying-capacity
 1000
 8000
-3450.0
+8000.0
 50
 1
 NIL
@@ -452,9 +357,9 @@ HORIZONTAL
 
 PLOT
 11
-348
+312
 370
-537
+501
 Cell Types
 Time
 Cell Types
@@ -472,51 +377,51 @@ PENS
 "pen-3" 1.0 0 -1184463 true "" "plot count turtles with [color = yellow]"
 
 SLIDER
-389
-433
-561
-466
+10
+67
+182
+100
 prob-gfy-mutation
 prob-gfy-mutation
 0
 100
-15.0
+1.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-389
-477
-562
-510
+10
+111
+183
+144
 prob-gfp-mutation
 prob-gfp-mutation
 0
 100
-15.0
+1.0
 1
 1
 NIL
 HORIZONTAL
 
 SWITCH
-399
-533
-561
-566
+382
+432
+544
+465
 mutation-occurs
 mutation-occurs
-1
+0
 1
 -1000
 
 SLIDER
-668
-585
-853
-618
+374
+537
+559
+570
 reproduction-energy
 reproduction-energy
 0
@@ -528,10 +433,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-396
-575
-606
-608
+583
+536
+793
+569
 gf-energy-multiplier
 gf-energy-multiplier
 0
@@ -543,10 +448,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-398
-630
-630
-663
+459
+496
+691
+529
 energy-to-all-turtles-per-tick
 energy-to-all-turtles-per-tick
 0
@@ -558,15 +463,25 @@ NIL
 HORIZONTAL
 
 SWITCH
-685
-513
-848
-546
+605
+433
+768
+466
 red-produces-gf
 red-produces-gf
 1
 1
 -1000
+
+TEXTBOX
+376
+476
+526
+494
+Energy\n
+11
+0.0
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
