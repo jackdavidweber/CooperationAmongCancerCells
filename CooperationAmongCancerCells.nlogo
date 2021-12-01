@@ -123,13 +123,14 @@ to get_energy
   ;; TODO: add energy for green
 end
 
-;; TODO: max figure this out
 to recolor-patches
-  ;; hotter patches will be red verging on white;
-  ;; cooler patches will be black
-  ask patches [ set pcolor scale-color red gfy 0 150 ]
-end
+  ;; more gfy = red (255 0 0)
+  ;; more gfp = blue (0 0 255)
+  ;; both = magenta (255 0 255)
+  ;; 1.7 is the correct magic number for scaling, I think
 
+  ask patches [ set pcolor (list (min (list (gfy * 1.7) 255)) 0 (min (list (gfp * 1.7) 255))) ]
+end
 
 to find-empty-patch-or-die
   let target one-of neighbors with [not any? turtles-here]
