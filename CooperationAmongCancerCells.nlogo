@@ -258,9 +258,9 @@ SLIDER
 evaporation-rate
 evaporation-rate
 0
-1
+0.02
 0.0
-0.01
+0.001
 1
 NIL
 HORIZONTAL
