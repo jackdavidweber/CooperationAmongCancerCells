@@ -15,7 +15,7 @@ to setup
   ;; wind up with more than one bug on a patch
   ask n-of carrying-capacity patches [
     sprout 1 [
-      set energy 1000
+      set energy 10
       set color green
       if not mutation-occurs
       [
