@@ -13,7 +13,7 @@ to setup
   clear-all
   ;; creating the bugs the following way ensures that we won't
   ;; wind up with more than one bug on a patch
-  ask n-of cell-count patches [
+  ask n-of carrying-capacity patches [
     sprout 1 [
       set energy 1000
       set color green
@@ -216,26 +216,11 @@ GRAPHICS-WINDOW
 ticks
 30.0
 
-SLIDER
-14
-30
-276
-63
-cell-count
-cell-count
-1
-1000
-1000.0
-1
-1
-cells
-HORIZONTAL
-
 BUTTON
-27
-177
-96
-210
+22
+186
+91
+219
 NIL
 setup
 NIL
@@ -249,10 +234,10 @@ NIL
 1
 
 BUTTON
-98
-177
-166
-210
+93
+186
+161
+219
 NIL
 go
 T
@@ -266,10 +251,10 @@ NIL
 0
 
 SLIDER
-164
-236
-357
-269
+177
+171
+370
+204
 evaporation-rate
 evaporation-rate
 0
@@ -281,10 +266,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-164
-270
-357
-303
+177
+205
+370
+238
 diffusion-rate
 diffusion-rate
 0
@@ -296,10 +281,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-189
-102
-362
-135
+199
+112
+372
+145
 output-gfp
 output-gfp
 0
@@ -311,9 +296,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-189
+200
 69
-362
+373
 102
 output-gfy
 output-gfy
@@ -325,85 +310,41 @@ output-gfy
 NIL
 HORIZONTAL
 
-BUTTON
-232
-145
-343
-178
-NIL
-gfy-nowhere
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-232
-178
-360
-211
-NIL
-gfy-everywhere
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
 TEXTBOX
-10
-10
-160
-28
-Initial settings for cells
-11
-0.0
-0
-
-TEXTBOX
-13
-230
-140
-258
+8
+239
+135
+267
 Other parameters
 11
 0.0
 0
 
 TEXTBOX
-12
-156
-162
-174
+7
+165
+157
+183
 Actions
 11
 0.0
 0
 
 TEXTBOX
-12
-251
-153
-280
+7
+260
+148
+289
 (OK to change\nduring run)
 11
 0.0
 0
 
 SLIDER
-625
-434
-804
-467
+105
+30
+284
+63
 carrying-capacity
 carrying-capacity
 1000
@@ -416,9 +357,9 @@ HORIZONTAL
 
 PLOT
 11
-348
+312
 370
-537
+501
 Cell Types
 Time
 Cell Types
@@ -436,10 +377,10 @@ PENS
 "pen-3" 1.0 0 -1184463 true "" "plot count turtles with [color = yellow]"
 
 SLIDER
-389
-433
-561
-466
+10
+67
+182
+100
 prob-gfy-mutation
 prob-gfy-mutation
 0
@@ -451,10 +392,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-389
-477
-562
-510
+10
+111
+183
+144
 prob-gfp-mutation
 prob-gfp-mutation
 0
@@ -466,21 +407,21 @@ NIL
 HORIZONTAL
 
 SWITCH
-399
-533
-561
-566
+382
+432
+544
+465
 mutation-occurs
 mutation-occurs
-1
+0
 1
 -1000
 
 SLIDER
-668
-585
-853
-618
+374
+537
+559
+570
 reproduction-energy
 reproduction-energy
 0
@@ -492,10 +433,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-396
-575
-606
-608
+583
+536
+793
+569
 gf-energy-multiplier
 gf-energy-multiplier
 0
@@ -507,10 +448,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-398
-630
-630
-663
+459
+496
+691
+529
 energy-to-all-turtles-per-tick
 energy-to-all-turtles-per-tick
 0
@@ -522,15 +463,25 @@ NIL
 HORIZONTAL
 
 SWITCH
-685
-513
-848
-546
+605
+433
+768
+466
 red-produces-gf
 red-produces-gf
 1
 1
 -1000
+
+TEXTBOX
+376
+476
+526
+494
+Energy\n
+11
+0.0
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
