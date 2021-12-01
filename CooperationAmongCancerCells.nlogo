@@ -62,7 +62,6 @@ to go
   diffuse gfp diffusion-rate
 
   kill-turtles
-  ;; recolor-turtles
   recolor-patches
   tick
 end
@@ -171,42 +170,6 @@ to kill-turtles
     let num-to-die num-turtles - carrying-capacity
     ask n-of num-to-die turtles [ die ]
   ]
-end
-
-to bug-move [target]  ;; turtle procedure
-  ;; if we're already there, there's nothing to do
-  if target = patch-here [ stop ]
-  ;; move to the target patch (if it is not already occupied)
-  if not any? turtles-on target [
-    face target
-    move-to target
-    stop
-  ]
-  set target one-of neighbors with [not any? turtles-here]
-  if target != nobody [ move-to target ]
-  ;; The code above is a bit different from the original Heatbugs
-  ;; model in Swarm.  In the NetLogo version, the bug will always
-  ;; find an empty patch if one is available.
-  ;; In the Swarm version, the bug picks a random
-  ;; nearby patch, checks to see if it is occupied, and if it is,
-  ;; picks again.  If after 10 tries it hasn't found an empty
-  ;; patch, it gives up and stays where it is.  Since each try
-  ;; is random and independent, even if there is an available
-  ;; empty patch the bug will not always find it.  Presumably
-  ;; the Swarm version is coded that way because there is no
-  ;; concise equivalent in Swarm/Objective C to NetLogo's
-  ;; 'one-of neighbors with [not any? turtles-here]'.
-  ;; If you want to match the Swarm version exactly, remove the
-  ;; last two lines of code above and replace them with this:
-  ; let tries 0
-  ; while [tries <= 9]
-  ;   [ set tries tries + 1
-  ;     set target one-of neighbors
-  ;     if not any? turtles-on target [
-  ;       move-to target
-  ;       stop
-  ;     ]
-  ;   ]
 end
 
 ;;; the following procedures support the two extra buttons
